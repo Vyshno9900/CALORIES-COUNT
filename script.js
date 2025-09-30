@@ -1,5 +1,6 @@
 // ✅ Your backend URL
 const BACKEND_URL = "https://cal-count-backend.onrender.com/api/gemini";
+
 // Optional: fallback CORS proxy if needed
 // const BACKEND_URL = "https://cors-anywhere.herokuapp.com/https://cal-count-backend.onrender.com/api/gemini";
 
