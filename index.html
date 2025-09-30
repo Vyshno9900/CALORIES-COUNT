@@ -2,24 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vyshno Calorie Tracker 🍎</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
-    h1 { color: #ff4d4d; }
-    input, button { padding: 10px; font-size: 16px; margin: 5px 0; }
-    #responses { margin-top: 20px; }
-    .response { background: #fff; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; }
+    input { width: 80%; padding: 10px; font-size: 16px; }
+    button { padding: 10px 15px; font-size: 16px; }
+    pre { background: #f0f0f0; padding: 10px; white-space: pre-wrap; }
   </style>
 </head>
 <body>
   <h1>Vyshno Calorie Tracker 🍎</h1>
+  
+  <input id="prompt-input" type="text" placeholder="Type food item..." />
+  <button id="ask-button">Ask Gemini</button>
 
-  <input type="text" id="foodInput" placeholder="Enter food (e.g., apple)" />
-  <button id="askBtn">Ask Gemini</button>
+  <h2>Response:</h2>
+  <pre id="response">No response yet.</pre>
 
-  <div id="responses"></div>
+  <script>
+    const BACKEND_URL = "https://cal-count-backend-2.onrender.com/api/gemini";
 
-  <script src="script.js"></script>
+    async function askGemini(promptText) {
+      try {
+        const res = await fetch(BACKEND_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: promptText })
+        });
+
+        const data = await res.json();
+
+        const message = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+        document.getElementById("response").innerText = message;
+
+      } catch (err) {
+        document.getElementById("response").innerText = "Error: " + err.message;
+      }
+    }
+
+    document.getElementById("ask-button").addEventListener("click", () => {
+      const prompt = document.getElementById("prompt-input").value;
+      askGemini(prompt);
+    });
+  </script>
 </body>
 </html>
