@@ -1,54 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Vyshno Calorie Tracker</title>
-<style>
-  body { font-family: Arial, sans-serif; padding: 20px; }
-  .highlight { background-color: yellow; font-weight: bold; }
-</style>
+  <meta charset="UTF-8">
+  <title>Vyshno Calorie Tracker 🍎</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    #response { margin-top: 20px; white-space: pre-wrap; }
+    .highlight { font-weight: bold; color: orange; }
+    input, button { padding: 10px; margin-top: 10px; width: 100%; }
+  </style>
 </head>
 <body>
-<h1>Vyshno Calorie Tracker 🍎</h1>
+  <h1>Vyshno Calorie Tracker 🍎</h1>
+  <input type="text" id="foodInput" placeholder="Type a food item, e.g., apple or apple chicken">
+  <button id="askBtn">Ask Gemini</button>
+  <div id="response">No response yet.</div>
 
-<input type="text" id="foodInput" placeholder="Enter food items" />
-<button id="askBtn">Ask Gemini</button>
+  <script>
+    const BACKEND_URL = "https://cal-count-backend-2.onrender.com/api/gemini"; // your Render backend
 
-<div id="response" style="margin-top: 20px; line-height: 1.6;"></div>
+    document.getElementById("askBtn").addEventListener("click", async () => {
+      const food = document.getElementById("foodInput").value.trim();
+      if (!food) return;
 
-<script>
-const BACKEND_URL = "https://cal-count-backend-2.onrender.com/api/gemini";
+      const responseDiv = document.getElementById("response");
+      responseDiv.textContent = "Loading...";
 
-document.getElementById("askBtn").addEventListener("click", async () => {
-  const prompt = document.getElementById("foodInput").value;
-  if (!prompt) return;
+      try {
+        const res = await fetch(BACKEND_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: food })
+        });
 
-  const responseEl = document.getElementById("response");
-  responseEl.innerText = "Loading...";
+        if (!res.ok) throw new Error("Failed to fetch response from backend.");
 
-  try {
-    const res = await fetch(BACKEND_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt }),
+        const data = await res.json();
+
+        // Gemini response text
+        let text = "";
+        if (data?.candidates?.length > 0) {
+          text = data.candidates[0].content.parts[0].text;
+        } else {
+          text = "No response from Gemini.";
+        }
+
+        // Highlight calories and numbers
+        text = text.replace(/(\d+(\.\d+)?\s*(calories|cal))/gi, match => `<span class="highlight">${match}</span>`);
+
+        responseDiv.innerHTML = text;
+
+      } catch (err) {
+        responseDiv.textContent = "Error: " + err.message;
+      }
     });
-
-    const data = await res.json();
-    let text = data.text || "No response";
-
-    // Remove Markdown bold (**text**)
-    text = text.replace(/\*\*(.*?)\*\*/g, "$1");
-
-    // Highlight the word "calories" and all numbers
-    text = text.replace(/(\bcalories\b|\d+(\.\d+)?)/gi, '<span class="highlight">$1</span>');
-
-    responseEl.innerHTML = text;
-
-  } catch (err) {
-    responseEl.innerText = "Error: " + err.message;
-  }
-});
-</script>
+  </script>
 </body>
 </html>
-//
