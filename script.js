@@ -1,5 +1,5 @@
 // ✅ Your backend URL
-const BACKEND_URL = "https://cal-count-backend-1.onrender.com/api/gemini";
+const BACKEND_URL = "https://cal-count-backend-2.onrender.com/api/gemini";
 
 
 // Optional: fallback CORS proxy if needed
