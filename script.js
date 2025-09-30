@@ -1,32 +1,41 @@
-const input = document.getElementById("foodInput");
-const button = document.getElementById("askBtn");
-const responseDiv = document.getElementById("response");
+// ✅ Your backend URL
+const BACKEND_URL = "https://cal-count-backend.onrender.com/api/gemini";
+// Optional: fallback CORS proxy if needed
+// const BACKEND_URL = "https://cors-anywhere.herokuapp.com/https://cal-count-backend.onrender.com/api/gemini";
 
-// Replace with your Render backend URL
-const BACKEND_URL = "https://calorie-api-backend.onrender.com/api/gemini";
+// Include your Gemini API key here
+const GEMINI_API_KEY = "AIzaSyCjJh9O908yFWMBnTst196RsmGmbfA8oZw";
 
-button.addEventListener("click", async () => {
-  const prompt = input.value.trim();
-  if (!prompt) return alert("Enter a food item!");
+const foodInput = document.getElementById("foodInput");
+const askBtn = document.getElementById("askBtn");
+const responsesDiv = document.getElementById("responses");
 
-  responseDiv.textContent = "Thinking... 🍏";
+askBtn.addEventListener("click", async () => {
+  const food = foodInput.value.trim();
+  if (!food) return alert("Please enter a food item!");
+
+  // Show temporary message
+  const tempDiv = document.createElement("div");
+  tempDiv.className = "response";
+  tempDiv.textContent = `Fetching info for "${food}"...`;
+  responsesDiv.prepend(tempDiv);
 
   try {
     const res = await fetch(BACKEND_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: `Estimate calories for: ${prompt}` }),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${GEMINI_API_KEY}`
+      },
+      body: JSON.stringify({ prompt: food })
     });
+
+    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+
     const data = await res.json();
-    
-    if (data.error) {
-      responseDiv.textContent = "Error: " + data.error;
-    } else if (data.candidates) {
-      responseDiv.textContent = data.candidates.map(c => c.content[0].text).join("\n");
-    } else {
-      responseDiv.textContent = JSON.stringify(data, null, 2);
-    }
+    tempDiv.textContent = data.message || JSON.stringify(data);
+
   } catch (err) {
-    responseDiv.textContent = "Fetch error: " + err.message;
+    tempDiv.textContent = `Error: ${err.message}`;
   }
 });
