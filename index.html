@@ -1,56 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Vyshno Calorie Tracker 🍎</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; }
-    input { width: 70%; padding: 10px; font-size: 16px; }
-    button { padding: 10px 15px; font-size: 16px; }
-    pre { background: #f0f0f0; padding: 10px; white-space: pre-wrap; }
-  </style>
+<meta charset="UTF-8">
+<title>Vyshno Calorie Tracker</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  .highlight { background-color: yellow; font-weight: bold; }
+</style>
 </head>
 <body>
-  <h1>Vyshno Calorie Tracker 🍎</h1>
-  
-  <input id="prompt-input" type="text" placeholder="Type food item..." />
-  <button id="ask-button">Ask Gemini</button>
+<h1>Vyshno Calorie Tracker 🍎</h1>
 
-  <h2>Response:</h2>
-  <pre id="response">No response yet.</pre>
+<input type="text" id="foodInput" placeholder="Enter food items" />
+<button id="askBtn">Ask Gemini</button>
 
-  <script>
-    const BACKEND_URL = "https://cal-count-backend-2.onrender.com/api/gemini";
+<div id="response" style="margin-top: 20px; line-height: 1.6;"></div>
 
-    async function askGemini(promptText) {
-      const responseEl = document.getElementById("response");
-      responseEl.innerText = "Fetching response...";
-      try {
-        const res = await fetch(BACKEND_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: promptText })
-        });
+<script>
+const BACKEND_URL = "https://cal-count-backend-2.onrender.com/api/gemini";
 
-        const data = await res.json();
+document.getElementById("askBtn").addEventListener("click", async () => {
+  const prompt = document.getElementById("foodInput").value;
+  if (!prompt) return;
 
-        // Simplified: just get the text of the first part of the first candidate
-        let message = "No response";
-        if (data?.candidates?.length) {
-          message = data.candidates[0].content.parts[0].text;
-        }
+  const responseEl = document.getElementById("response");
+  responseEl.innerText = "Loading...";
 
-        responseEl.innerText = message;
-
-      } catch (err) {
-        responseEl.innerText = "Error: " + err.message;
-      }
-    }
-
-    document.getElementById("ask-button").addEventListener("click", () => {
-      const prompt = document.getElementById("prompt-input").value;
-      if (prompt.trim() !== "") askGemini(prompt);
+  try {
+    const res = await fetch(BACKEND_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
     });
-  </script>
+
+    const data = await res.json();
+    let text = data.text || "No response";
+
+    // Remove Markdown bold (**text**)
+    text = text.replace(/\*\*(.*?)\*\*/g, "$1");
+
+    // Highlight the word "calories" and all numbers
+    text = text.replace(/(\bcalories\b|\d+(\.\d+)?)/gi, '<span class="highlight">$1</span>');
+
+    responseEl.innerHTML = text;
+
+  } catch (err) {
+    responseEl.innerText = "Error: " + err.message;
+  }
+});
+</script>
 </body>
 </html>
