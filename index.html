@@ -5,7 +5,7 @@
   <title>Vyshno Calorie Tracker 🍎</title>
   <style>
     body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; }
-    input { width: 80%; padding: 10px; font-size: 16px; }
+    input { width: 70%; padding: 10px; font-size: 16px; }
     button { padding: 10px 15px; font-size: 16px; }
     pre { background: #f0f0f0; padding: 10px; white-space: pre-wrap; }
   </style>
@@ -23,6 +23,8 @@
     const BACKEND_URL = "https://cal-count-backend-2.onrender.com/api/gemini";
 
     async function askGemini(promptText) {
+      const responseEl = document.getElementById("response");
+      responseEl.innerText = "Fetching response...";
       try {
         const res = await fetch(BACKEND_URL, {
           method: "POST",
@@ -32,17 +34,22 @@
 
         const data = await res.json();
 
-        const message = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
-        document.getElementById("response").innerText = message;
+        // Simplified: just get the text of the first part of the first candidate
+        let message = "No response";
+        if (data?.candidates?.length) {
+          message = data.candidates[0].content.parts[0].text;
+        }
+
+        responseEl.innerText = message;
 
       } catch (err) {
-        document.getElementById("response").innerText = "Error: " + err.message;
+        responseEl.innerText = "Error: " + err.message;
       }
     }
 
     document.getElementById("ask-button").addEventListener("click", () => {
       const prompt = document.getElementById("prompt-input").value;
-      askGemini(prompt);
+      if (prompt.trim() !== "") askGemini(prompt);
     });
   </script>
 </body>
