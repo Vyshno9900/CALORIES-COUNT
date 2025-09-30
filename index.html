@@ -5,16 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vyshno Calorie Tracker 🍎</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 2rem; }
-    input, button { padding: 0.5rem; margin: 0.5rem 0; width: 100%; }
-    #response { margin-top: 1rem; white-space: pre-wrap; }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    h1 { color: #ff4d4d; }
+    input, button { padding: 10px; font-size: 16px; margin: 5px 0; }
+    #responses { margin-top: 20px; }
+    .response { background: #fff; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
   </style>
 </head>
 <body>
   <h1>Vyshno Calorie Tracker 🍎</h1>
-  <input id="foodInput" placeholder="Enter food or meal" />
+
+  <input type="text" id="foodInput" placeholder="Enter food (e.g., apple)" />
   <button id="askBtn">Ask Gemini</button>
-  <div id="response">No response yet.</div>
+
+  <div id="responses"></div>
 
   <script src="script.js"></script>
 </body>
